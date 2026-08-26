@@ -1,3 +1,2 @@
-<div>
-    <!-- Nothing worth having comes easy. - Theodore Roosevelt -->
-</div>
+@props(['category'])
+<a href="{{ route('categories.show', $category) }}" class="group relative block min-w-0 overflow-hidden rounded-3xl bg-forest shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"><img class="h-52 w-full object-cover transition duration-500 group-hover:scale-105" src="{{ asset($category->image_path) }}" alt="{{ $category->name }} kategorisi için çiçek illüstrasyonu"><span class="absolute inset-0 bg-linear-to-t from-forest-dark via-forest/15 to-transparent"></span><span class="absolute inset-x-0 bottom-0 p-5 text-cream"><span class="block font-display text-2xl font-bold">{{ $category->name }}</span><span class="mt-1 block text-sm text-cream/80">{{ $category->description }}</span></span></a>

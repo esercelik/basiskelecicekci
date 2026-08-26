@@ -1,3 +1,3 @@
-<div>
-    <!-- Simplicity is an acquired taste. - Katharine Gerould -->
-</div>
+@props(['title' => config('store.name'), 'description' => 'Başiskele ve çevresine çiçek siparişi için taze çiçekler, buketler ve aranjmanlar.', 'image' => null])
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="{{ $description }}"><link rel="canonical" href="{{ url()->current() }}"><meta property="og:locale" content="tr_TR"><meta property="og:type" content="website"><meta property="og:title" content="{{ $title }}"><meta property="og:description" content="{{ $description }}"><meta property="og:url" content="{{ url()->current() }}"><meta property="og:site_name" content="{{ config('store.name') }}">@if ($image)<meta property="og:image" content="{{ asset($image) }}">@endif<title>{{ $title }}</title>@vite(['resources/css/app.css', 'resources/js/app.js'])</head><body class="min-w-0 overflow-x-hidden"><x-header /><main>{{ $slot }}</main><x-footer /><x-whats-app-button floating /></body></html>
