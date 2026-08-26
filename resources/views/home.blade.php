@@ -9,5 +9,6 @@
 
     <section class="border-t border-forest/10 bg-white px-4 py-12 sm:px-6 lg:px-8"><div class="mx-auto grid max-w-7xl gap-6 md:grid-cols-[1fr_auto] md:items-center"><div><p class="text-sm font-bold tracking-[0.18em] text-gold uppercase">Adres</p><h2 class="mt-2 font-display text-3xl font-bold text-forest">{{ config('store.address') }}</h2></div><a href="{{ config('store.map_url') }}" target="_blank" rel="noopener noreferrer" class="inline-flex min-h-12 items-center justify-center rounded-full border border-forest/20 px-6 font-bold text-forest transition hover:bg-forest hover:text-cream">Haritada aç</a></div></section>
 
-    <script type="application/ld+json">@json(['@context' => 'https://schema.org', '@type' => 'Florist', 'name' => config('store.name'), 'url' => url('/'), 'telephone' => config('store.phone'), 'address' => ['@type' => 'PostalAddress', 'streetAddress' => config('store.address'), 'addressLocality' => 'Başiskele', 'addressRegion' => 'Kocaeli', 'addressCountry' => 'TR']])</script>
+    @php($structuredData = ['@context' => 'https://schema.org', '@type' => 'Florist', 'name' => config('store.name'), 'url' => url('/'), 'telephone' => config('store.phone'), 'address' => ['@type' => 'PostalAddress', 'streetAddress' => config('store.address'), 'addressLocality' => 'Başiskele', 'addressRegion' => 'Kocaeli', 'addressCountry' => 'TR']])
+    <script type="application/ld+json">@json($structuredData)</script>
 </x-layout>

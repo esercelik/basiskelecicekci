@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,11 +14,13 @@ use Illuminate\Support\Str;
 
 class Product extends Model
 {
-    /** @use HasFactory<\Database\Factories\ProductFactory> */
+    /** @use HasFactory<ProductFactory> */
     use HasFactory;
 
     public const STOCK_STATUS_IN_STOCK = 'in_stock';
+
     public const STOCK_STATUS_PRE_ORDER = 'pre_order';
+
     public const STOCK_STATUS_OUT_OF_STOCK = 'out_of_stock';
 
     protected $fillable = ['category_id', 'name', 'slug', 'sku', 'short_description', 'description', 'price', 'sale_price', 'stock_status', 'is_active', 'is_featured', 'sort_order'];
@@ -34,7 +37,7 @@ class Product extends Model
         return 'slug';
     }
 
-    public function resolveRouteBindingQuery(mixed $query, mixed $value, ?string $field = null): mixed
+    public function resolveRouteBindingQuery($query, $value, $field = null)
     {
         return $query->active()->whereHas('category', fn (Builder $categoryQuery): Builder => $categoryQuery->active())->where($field ?? $this->getRouteKeyName(), $value);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\CategoryFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Category extends Model
 {
-    /** @use HasFactory<\Database\Factories\CategoryFactory> */
+    /** @use HasFactory<CategoryFactory> */
     use HasFactory;
 
     protected $fillable = ['name', 'slug', 'description', 'image_path', 'is_active', 'sort_order'];
@@ -26,7 +27,7 @@ class Category extends Model
         return 'slug';
     }
 
-    public function resolveRouteBindingQuery(mixed $query, mixed $value, ?string $field = null): mixed
+    public function resolveRouteBindingQuery($query, $value, $field = null)
     {
         return $query->active()->where($field ?? $this->getRouteKeyName(), $value);
     }
