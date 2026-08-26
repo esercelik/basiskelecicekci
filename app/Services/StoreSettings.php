@@ -12,33 +12,41 @@ class StoreSettings
 {
     public function get(): object
     {
-        return Cache::remember('store.settings', now()->addHour(), function (): object {
-            $defaults = [
-                'name' => (string) config('store.name'),
-                'phone' => (string) config('store.phone'),
-                'whatsapp_number' => (string) config('store.whatsapp_number'),
-                'address' => (string) config('store.address'),
-                'instagram_url' => (string) config('store.instagram_url'),
-                'map_url' => (string) config('store.map_url'),
-            ];
+        $data = Cache::get('store.settings');
 
-            try {
-                $settings = Schema::hasTable('store_settings') ? StoreSetting::query()->first() : null;
-            } catch (Throwable) {
-                $settings = null;
-            }
+        if (! is_array($data)) {
+            Cache::forget('store.settings');
+            $data = Cache::remember('store.settings', now()->addHour(), function (): array {
+                $defaults = [
+                    'name' => (string) config('store.name'),
+                    'phone' => (string) config('store.phone'),
+                    'whatsapp_number' => (string) config('store.whatsapp_number'),
+                    'address' => (string) config('store.address'),
+                    'instagram_url' => (string) config('store.instagram_url'),
+                    'map_url' => (string) config('store.map_url'),
+                ];
 
-            $values = $settings?->only(array_keys($defaults)) ?? [];
-            $data = array_replace($defaults, array_filter($values, fn (mixed $value): bool => filled($value)));
-            $data['phoneUrl'] = 'tel:'.preg_replace('/[^0-9+]/', '', $data['phone']);
-            $data['whatsappNumber'] = $this->normalizeWhatsappNumber($data['whatsapp_number']);
+                try {
+                    $settings = Schema::hasTable('store_settings') ? StoreSetting::query()->first() : null;
+                } catch (Throwable) {
+                    $settings = null;
+                }
 
-            return (object) $data;
-        });
+                $values = $settings?->only(array_keys($defaults)) ?? [];
+
+                return array_replace($defaults, array_filter($values, fn (mixed $value): bool => filled($value)));
+            });
+        }
+
+        return (object) [
+            ...$data,
+            'phoneUrl' => 'tel:'.preg_replace('/[^0-9+]/', '', $data['phone']),
+            'whatsappNumber' => $this->normalizeWhatsappNumber($data['whatsapp_number']),
+        ];
     }
 
     /**
-     * @param array{name: string, phone: string, whatsapp_number: string, address: string, instagram_url: string|null, map_url: string|null} $attributes
+     * @param  array{name: string, phone: string, whatsapp_number: string, address: string, instagram_url: string|null, map_url: string|null}  $attributes
      */
     public function update(array $attributes): StoreSetting
     {

@@ -24,7 +24,7 @@ class UpdateProfileRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email:rfc,dns', 'max:255', Rule::unique('users', 'email')->ignore($this->user())],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($this->user())],
             'current_password' => ['required', 'current_password'],
         ];
     }

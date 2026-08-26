@@ -1,0 +1,1 @@
+<x-admin.layout title="Yeni kategori"><form class="rounded-3xl bg-white p-5 shadow-sm sm:p-7" method="POST" action="{{ route('admin.categories.store') }}" enctype="multipart/form-data">@include('admin.categories.form')</form></x-admin.layout>

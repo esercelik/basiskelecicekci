@@ -1,0 +1,1 @@
+<x-admin.layout title="Yeni ürün"><form class="rounded-3xl bg-white p-5 shadow-sm sm:p-7" method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data">@include('admin.products.form')</form></x-admin.layout>

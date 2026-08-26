@@ -14,7 +14,7 @@ use Throwable;
 class ProductImageManager
 {
     /**
-     * @param array<int, UploadedFile> $files
+     * @param  array<int, UploadedFile>  $files
      */
     public function addUploads(Product $product, array $files): void
     {
@@ -50,8 +50,8 @@ class ProductImageManager
     }
 
     /**
-     * @param array<int|string, string|null> $altTexts
-     * @param array<int|string, int|string|null> $sortOrders
+     * @param  array<int|string, string|null>  $altTexts
+     * @param  array<int|string, int|string|null>  $sortOrders
      */
     public function updateMetadata(Product $product, array $altTexts, array $sortOrders, ?int $primaryImageId): void
     {
@@ -93,7 +93,7 @@ class ProductImageManager
     }
 
     /**
-     * @param Collection<int, string> $paths
+     * @param  Collection<int, string>  $paths
      */
     public function deleteManagedPaths(Collection $paths): void
     {

@@ -11,6 +11,7 @@ composer install
 cp .env.example .env
 php artisan key:generate
 php artisan migrate --seed
+php artisan storage:link
 npm install
 npm run build
 php artisan serve
@@ -18,7 +19,19 @@ php artisan serve
 
 Uygulama varsayılan olarak `http://127.0.0.1:8000` adresinde açılır. Geliştirme sırasında Vite izleme sunucusunu çalıştırmak için ayrı bir terminalde `npm run dev` kullanabilirsiniz.
 
-## Mağaza bilgileri
+## Yönetim paneli
+
+İlk yönetici hesabını güvenli biçimde oluşturmak için:
+
+```bash
+php artisan admin:create
+```
+
+Giriş adresi: `/admin/giris`.
+
+Ürün ve kategori görselleri `storage/app/public/products` ile `storage/app/public/categories` altında tutulur; bunların ziyaretçi sitesinde görünmesi için `php artisan storage:link` gereklidir. Mağaza adı, iletişim ve WhatsApp bilgileri yönetim panelindeki **Mağaza ayarları** bölümünden değiştirilir.
+
+## Config fallback mağaza bilgileri
 
 Gerçek telefon, WhatsApp, Instagram ve harita bağlantılarını `.env` içindeki aşağıdaki değerlerden değiştirin:
 
@@ -34,7 +47,7 @@ Bu değerler `config/store.php` üzerinden uygulamanın tamamına merkezi olarak
 ## Kontroller
 
 ```bash
-php artisan migrate:fresh --seed
+php artisan migrate --seed
 php artisan test
 vendor/bin/pint --format agent
 npm run build

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\StoreSettings;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,9 +10,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Support\Number;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Number;
 
 class Product extends Model
 {
@@ -114,21 +114,20 @@ class Product extends Model
     public function whatsappOrderUrl(): ?string
     {
         $productUrl = route('products.show', $this);
-        $message = sprintf('Merhaba, %s web sitenizdeki %s ürünü hakkında sipariş vermek istiyorum. Ürün bağlantısı: %s', App::make(\App\Services\StoreSettings::class)->get()->name, $this->name, $productUrl);
+        $message = sprintf('Merhaba, %s web sitenizdeki %s ürünü hakkında sipariş vermek istiyorum. Ürün bağlantısı: %s', App::make(StoreSettings::class)->get()->name, $this->name, $productUrl);
 
         return self::whatsappUrlForMessage($message);
     }
 
     public static function generalWhatsappUrl(): ?string
     {
-        return self::whatsappUrlForMessage(sprintf('Merhaba, %s ile çiçek siparişi hakkında bilgi almak istiyorum.', App::make(\App\Services\StoreSettings::class)->get()->name));
+        return self::whatsappUrlForMessage(sprintf('Merhaba, %s ile çiçek siparişi hakkında bilgi almak istiyorum.', App::make(StoreSettings::class)->get()->name));
     }
 
     private static function whatsappUrlForMessage(string $message): ?string
     {
-        $number = App::make(\App\Services\StoreSettings::class)->get()->whatsappNumber;
+        $number = App::make(StoreSettings::class)->get()->whatsappNumber;
 
         return is_null($number) ? null : 'https://wa.me/'.$number.'?'.http_build_query(['text' => $message], '', '&', PHP_QUERY_RFC3986);
     }
-
 }
