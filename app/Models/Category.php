@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Category extends Model
 {
@@ -29,6 +31,10 @@ class Category extends Model
 
     public function resolveRouteBindingQuery($query, $value, $field = null)
     {
+        if (request()->routeIs('admin.*')) {
+            return $query->where($field ?? $this->getRouteKeyName(), $value);
+        }
+
         return $query->active()->where($field ?? $this->getRouteKeyName(), $value);
     }
 
@@ -45,5 +51,16 @@ class Category extends Model
     public function scopeOrdered(Builder $query): void
     {
         $query->orderBy('sort_order')->orderBy('name');
+    }
+
+    public function imageUrl(): string
+    {
+        if (is_null($this->image_path)) {
+            return asset('images/placeholders/buketler.svg');
+        }
+
+        return Str::startsWith($this->image_path, 'categories/')
+            ? Storage::disk('public')->url($this->image_path)
+            : asset($this->image_path);
     }
 }

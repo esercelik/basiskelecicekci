@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Number;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\App;
 
 class Product extends Model
 {
@@ -39,6 +40,10 @@ class Product extends Model
 
     public function resolveRouteBindingQuery($query, $value, $field = null)
     {
+        if (request()->routeIs('admin.*')) {
+            return $query->where($field ?? $this->getRouteKeyName(), $value);
+        }
+
         return $query->active()->whereHas('category', fn (Builder $categoryQuery): Builder => $categoryQuery->active())->where($field ?? $this->getRouteKeyName(), $value);
     }
 
@@ -109,37 +114,21 @@ class Product extends Model
     public function whatsappOrderUrl(): ?string
     {
         $productUrl = route('products.show', $this);
-        $message = sprintf('Merhaba, %s web sitenizdeki %s ürünü hakkında sipariş vermek istiyorum. Ürün bağlantısı: %s', config('store.name'), $this->name, $productUrl);
+        $message = sprintf('Merhaba, %s web sitenizdeki %s ürünü hakkında sipariş vermek istiyorum. Ürün bağlantısı: %s', App::make(\App\Services\StoreSettings::class)->get()->name, $this->name, $productUrl);
 
         return self::whatsappUrlForMessage($message);
     }
 
     public static function generalWhatsappUrl(): ?string
     {
-        return self::whatsappUrlForMessage(sprintf('Merhaba, %s ile çiçek siparişi hakkında bilgi almak istiyorum.', config('store.name')));
+        return self::whatsappUrlForMessage(sprintf('Merhaba, %s ile çiçek siparişi hakkında bilgi almak istiyorum.', App::make(\App\Services\StoreSettings::class)->get()->name));
     }
 
     private static function whatsappUrlForMessage(string $message): ?string
     {
-        $number = self::normalizedWhatsappNumber();
+        $number = App::make(\App\Services\StoreSettings::class)->get()->whatsappNumber;
 
         return is_null($number) ? null : 'https://wa.me/'.$number.'?'.http_build_query(['text' => $message], '', '&', PHP_QUERY_RFC3986);
     }
 
-    private static function normalizedWhatsappNumber(): ?string
-    {
-        $number = preg_replace('/\D+/', '', (string) config('store.whatsapp_number'));
-
-        if (is_null($number) || $number === '') {
-            return null;
-        }
-
-        $number = Str::startsWith($number, '00') ? Str::substr($number, 2) : $number;
-
-        if (Str::startsWith($number, '0')) {
-            $number = '90'.Str::substr($number, 1);
-        }
-
-        return preg_match('/^[1-9][0-9]{7,14}$/', $number) === 1 ? $number : null;
-    }
 }
