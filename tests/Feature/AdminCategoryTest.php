@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class AdminCategoryTest extends TestCase
@@ -37,5 +38,31 @@ class AdminCategoryTest extends TestCase
     public function test_category_image_must_be_a_safe_raster_image(): void
     {
         $this->actingAs(User::factory()->admin()->create())->from(route('admin.categories.create'))->post(route('admin.categories.store'), ['name' => 'Test', 'slug' => 'test', 'is_active' => true, 'sort_order' => 0, 'image' => UploadedFile::fake()->create('bad.svg', 10, 'image/svg+xml')])->assertSessionHasErrors('image');
+    }
+
+    public function test_category_image_uses_the_public_storage_url_and_rejects_gif_files(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)->post(route('admin.categories.store'), [
+            'name' => 'Görselli kategori',
+            'slug' => 'gorselli-kategori',
+            'is_active' => true,
+            'sort_order' => 0,
+            'image' => UploadedFile::fake()->image('category.webp'),
+        ])->assertRedirect();
+
+        $category = Category::query()->where('slug', 'gorselli-kategori')->firstOrFail();
+        Storage::disk('public')->assertExists($category->image_path);
+        $this->assertStringContainsString('/storage/categories/', $category->imageUrl());
+
+        $this->actingAs($admin)->from(route('admin.categories.create'))->post(route('admin.categories.store'), [
+            'name' => 'GIF kategori',
+            'slug' => 'gif-kategori',
+            'is_active' => true,
+            'sort_order' => 0,
+            'image' => UploadedFile::fake()->create('bad.gif', 10, 'image/gif'),
+        ])->assertSessionHasErrors('image');
     }
 }

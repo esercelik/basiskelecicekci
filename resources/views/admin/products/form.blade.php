@@ -106,12 +106,3 @@
     <button class="min-h-11 rounded-xl bg-forest px-5 text-sm font-bold text-cream">Kaydet</button>
     <a class="inline-flex min-h-11 items-center rounded-xl border border-forest/20 px-5 text-sm font-bold text-forest" href="{{ route('admin.products.index') }}">İptal</a>
 </div>
-
-@if ($product->exists)
-    @foreach ($product->images as $image)
-        <form id="delete-image-{{ $image->id }}" method="POST" action="{{ route('admin.products.images.destroy', [$product, $image]) }}" onsubmit="return confirm('Bu görseli silmek istediğinizden emin misiniz?')">
-            @csrf
-            @method('DELETE')
-        </form>
-    @endforeach
-@endif

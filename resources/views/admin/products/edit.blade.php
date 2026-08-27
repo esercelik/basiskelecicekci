@@ -1,1 +1,17 @@
-<x-admin.layout title="Ürün düzenle"><div class="mb-5 flex justify-end"><a class="inline-flex min-h-11 items-center rounded-xl border border-forest/20 px-4 text-sm font-bold text-forest" target="_blank" rel="noopener noreferrer" href="{{ route('products.show', $product->slug) }}">Vitrinde önizle</a></div><form class="rounded-3xl bg-white p-5 shadow-sm sm:p-7" method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data">@method('PUT') @include('admin.products.form')</form></x-admin.layout>
+<x-admin.layout title="Ürün düzenle">
+    <div class="mb-5 flex justify-end">
+        <a class="inline-flex min-h-11 items-center rounded-xl border border-forest/20 px-4 text-sm font-bold text-forest" target="_blank" rel="noopener noreferrer" href="{{ route('products.show', $product->slug) }}">Vitrinde önizle</a>
+    </div>
+
+    <form class="rounded-3xl bg-white p-5 shadow-sm sm:p-7" method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data">
+        @method('PUT')
+        @include('admin.products.form')
+    </form>
+
+    @foreach ($product->images as $image)
+        <form id="delete-image-{{ $image->id }}" method="POST" action="{{ route('admin.products.images.destroy', [$product, $image]) }}" onsubmit="return confirm('Bu görseli silmek istediğinizden emin misiniz?')">
+            @csrf
+            @method('DELETE')
+        </form>
+    @endforeach
+</x-admin.layout>

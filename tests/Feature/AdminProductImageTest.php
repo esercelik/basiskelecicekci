@@ -37,4 +37,41 @@ class AdminProductImageTest extends TestCase
         $product = Product::factory()->create();
         $this->actingAs(User::factory()->admin()->create())->from(route('admin.products.edit', $product))->put(route('admin.products.update', $product), ['category_id' => $product->category_id, 'name' => $product->name, 'slug' => $product->slug, 'short_description' => $product->short_description, 'price' => $product->price, 'stock_status' => 'in_stock', 'is_active' => true, 'is_featured' => false, 'sort_order' => 0, 'images' => [UploadedFile::fake()->create('bad.svg', 10, 'image/svg+xml')]])->assertSessionHasErrors('images.0');
     }
+
+    public function test_selected_primary_image_is_used_on_the_public_product_page_and_cross_product_deletion_is_blocked(): void
+    {
+        Storage::fake('public');
+        $admin = User::factory()->admin()->create();
+        $product = Product::factory()->create();
+        $otherProduct = Product::factory()->create();
+        $first = ProductImage::factory()->for($product)->create(['image_path' => 'products/'.$product->id.'/first.jpg', 'is_primary' => false, 'sort_order' => 1]);
+        $primary = ProductImage::factory()->for($product)->create(['image_path' => 'products/'.$product->id.'/primary.jpg', 'is_primary' => true, 'sort_order' => 2]);
+        $otherImage = ProductImage::factory()->for($otherProduct)->create(['image_path' => 'products/'.$otherProduct->id.'/other.jpg']);
+
+        $this->get(route('products.show', $product))
+            ->assertOk()
+            ->assertSee($primary->image_path)
+            ->assertDontSee($first->image_path);
+
+        $this->actingAs($admin)
+            ->delete(route('admin.products.images.destroy', [$product, $otherImage]))
+            ->assertNotFound();
+    }
+
+    public function test_product_rejects_gif_images_and_more_than_ten_images(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $product = Product::factory()->create();
+        ProductImage::factory()->count(10)->for($product)->create(['is_primary' => false]);
+
+        $payload = ['category_id' => $product->category_id, 'name' => $product->name, 'slug' => $product->slug, 'short_description' => $product->short_description, 'price' => $product->price, 'stock_status' => 'in_stock', 'is_active' => true, 'is_featured' => false, 'sort_order' => 0];
+
+        $this->actingAs($admin)->from(route('admin.products.edit', $product))
+            ->put(route('admin.products.update', $product), [...$payload, 'images' => [UploadedFile::fake()->create('bad.gif', 10, 'image/gif')]])
+            ->assertSessionHasErrors('images.0');
+
+        $this->actingAs($admin)->from(route('admin.products.edit', $product))
+            ->put(route('admin.products.update', $product), [...$payload, 'images' => [UploadedFile::fake()->image('one.jpg')]])
+            ->assertSessionHasErrors('images');
+    }
 }

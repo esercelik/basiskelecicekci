@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\StoreSetting;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
@@ -52,8 +53,14 @@ class StorefrontTest extends TestCase
     public function test_whatsapp_order_link_contains_product_name_and_url(): void
     {
         $product = Product::factory()->create(['name' => 'Zarif Gül', 'slug' => 'zarif-gul']);
+        StoreSetting::query()->create([
+            'id' => 1,
+            'name' => 'Başiskele Çiçek',
+            'address' => 'Başiskele',
+            'whatsapp_number' => '0555 111 11 11',
+        ]);
 
-        $this->get(route('products.show', $product))->assertOk()->assertSee('https://wa.me/905550000000?text=')->assertSee(rawurlencode('Zarif Gül'))->assertSee(rawurlencode(route('products.show', $product)));
+        $this->get(route('products.show', $product))->assertOk()->assertSee('https://wa.me/905551111111?text=')->assertSee(rawurlencode('Zarif Gül'))->assertSee(rawurlencode(route('products.show', $product)));
     }
 
     public function test_sale_price_is_displayed_when_a_product_is_discounted(): void

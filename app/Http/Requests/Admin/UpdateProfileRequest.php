@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests\Admin;
 
+use Illuminate\Foundation\Http\Attributes\ErrorBag;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+#[ErrorBag('profile')]
 class UpdateProfileRequest extends FormRequest
 {
     /**

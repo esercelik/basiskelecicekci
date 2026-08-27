@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use RuntimeException;
 use Throwable;
 
 class ProductImageManager
@@ -117,6 +118,14 @@ class ProductImageManager
 
     private function deleteManagedPath(string $path): bool
     {
-        return Str::startsWith($path, 'products/') && Storage::disk('public')->delete($path);
+        if (! Str::startsWith($path, 'products/')) {
+            return true;
+        }
+
+        if (! Storage::disk('public')->delete($path)) {
+            throw new RuntimeException('Ürün görseli depolama alanından silinemedi.');
+        }
+
+        return true;
     }
 }

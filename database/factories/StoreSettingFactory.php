@@ -19,11 +19,11 @@ class StoreSettingFactory extends Factory
     {
         return [
             'name' => 'Başiskele Çiçek',
-            'phone' => '+90 262 000 00 00',
-            'whatsapp_number' => '905550000000',
+            'phone' => null,
+            'whatsapp_number' => null,
             'address' => 'Barbaros Mahallesi, Pınar Caddesi, Başiskele/Kocaeli',
-            'instagram_url' => 'https://www.instagram.com/basiskelecicek',
-            'map_url' => 'https://maps.google.com/?q=Barbaros+Mahallesi,+Pınar+Caddesi,+Başiskele,+Kocaeli',
+            'instagram_url' => null,
+            'map_url' => null,
         ];
     }
 }

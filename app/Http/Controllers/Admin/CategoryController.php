@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use RuntimeException;
 
 class CategoryController extends Controller
 {
@@ -48,7 +49,7 @@ class CategoryController extends Controller
             $category = Category::query()->create($data);
         } catch (\Throwable $exception) {
             if ($path) {
-                Storage::disk('public')->delete($path);
+                $this->deleteManagedImage($path);
             }
 
             throw $exception;
@@ -91,14 +92,14 @@ class CategoryController extends Controller
             $category->update($data);
         } catch (\Throwable $exception) {
             if ($newPath) {
-                Storage::disk('public')->delete($newPath);
+                $this->deleteManagedImage($newPath);
             }
 
             throw $exception;
         }
 
         if ($newPath && Str::startsWith((string) $oldPath, 'categories/')) {
-            Storage::disk('public')->delete($oldPath);
+            $this->deleteManagedImage($oldPath);
         }
 
         return to_route('admin.categories.edit', $category)->with('status', 'Kategori güncellendi.');
@@ -117,9 +118,20 @@ class CategoryController extends Controller
         $category->delete();
 
         if (Str::startsWith((string) $imagePath, 'categories/')) {
-            Storage::disk('public')->delete($imagePath);
+            $this->deleteManagedImage($imagePath);
         }
 
         return to_route('admin.categories.index')->with('status', 'Kategori silindi.');
+    }
+
+    private function deleteManagedImage(string $path): void
+    {
+        if (! Str::startsWith($path, 'categories/')) {
+            return;
+        }
+
+        if (! Storage::disk('public')->delete($path)) {
+            throw new RuntimeException('Kategori görseli depolama alanından silinemedi.');
+        }
     }
 }

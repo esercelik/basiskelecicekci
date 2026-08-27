@@ -22,7 +22,11 @@ class AdminProductTest extends TestCase
         $product = Product::query()->where('slug', 'zarif-lale')->firstOrFail();
         $this->assertSame('Güvenli', $product->description);
         $this->put(route('admin.products.update', $product), array_merge($payload, ['slug' => 'zarif-lale-2', 'name' => 'Yeni Lale', 'sale_price' => null]))->assertRedirect(route('admin.products.edit', $product->fresh()));
-        $this->get(route('admin.products.index', ['search' => 'Yeni', 'category' => $category->id, 'status' => 'active']))->assertOk()->assertSee('Yeni Lale');
+        $this->get(route('admin.products.index', ['search' => 'Yeni', 'category' => $category->id, 'status' => 'active', 'stock' => 'in_stock', 'featured' => 'yes']))
+            ->assertOk()
+            ->assertSee('Yeni Lale')
+            ->assertSee('value="in_stock" selected', false)
+            ->assertSee('value="yes" selected', false);
     }
 
     public function test_price_validation_and_public_inactive_visibility_and_authorization_work(): void

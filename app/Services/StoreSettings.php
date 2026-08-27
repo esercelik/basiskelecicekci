@@ -61,19 +61,24 @@ class StoreSettings
 
     private function normalizePhoneNumber(?string $number): ?string
     {
-        $number = preg_replace('/\D+/', '', (string) $number);
+        $rawNumber = trim((string) $number);
+        $hasInternationalPrefix = Str::startsWith($rawNumber, '+') || Str::startsWith($rawNumber, '00');
+        $number = preg_replace('/\D+/', '', $rawNumber);
 
         if (blank($number)) {
             return null;
         }
 
-        $number = Str::startsWith($number, '00') ? Str::substr($number, 2) : $number;
+        if (Str::startsWith($number, '00')) {
+            $number = Str::substr($number, 2);
+        }
 
         if (Str::startsWith($number, '0')) {
             $number = '90'.Str::substr($number, 1);
+            $hasInternationalPrefix = true;
         }
 
-        if (Str::startsWith($number, '90')) {
+        if ($hasInternationalPrefix || Str::startsWith($number, '90')) {
             $number = '+'.$number;
         }
 

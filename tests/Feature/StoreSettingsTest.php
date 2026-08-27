@@ -20,6 +20,7 @@ class StoreSettingsTest extends TestCase
         $this->assertDatabaseHas('store_settings', ['id' => 1, 'name' => 'Yeni Çiçekçi']);
         $product = Product::factory()->create();
         $this->assertStringContainsString('905551111111', $product->whatsappOrderUrl());
+        $this->get(route('home'))->assertOk()->assertSee('Yeni Çiçekçi')->assertSee('tel:+902621111111');
         $this->actingAs(User::factory()->create())->put(route('admin.settings.update'), [])->assertForbidden();
     }
 
@@ -28,5 +29,26 @@ class StoreSettingsTest extends TestCase
         StoreSetting::query()->delete();
         Cache::forget('store.settings');
         $this->assertSame(config('store.name'), app(StoreSettings::class)->get()->name);
+    }
+
+    public function test_missing_contact_details_do_not_generate_links_or_json_ld_values(): void
+    {
+        config()->set('store.phone', null);
+        config()->set('store.whatsapp_number', null);
+        config()->set('store.instagram_url', null);
+        config()->set('store.map_url', null);
+        StoreSetting::query()->delete();
+        Cache::forget('store.settings');
+
+        $store = app(StoreSettings::class)->get();
+
+        $this->assertNull($store->phoneUrl);
+        $this->assertNull($store->whatsappNumber);
+        $this->assertNull(Product::generalWhatsappUrl());
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertDontSee('tel:')
+            ->assertDontSee('https://wa.me/')
+            ->assertDontSee('"telephone"');
     }
 }

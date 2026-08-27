@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Admin;
 
+use Illuminate\Foundation\Http\Attributes\ErrorBag;
 use Illuminate\Foundation\Http\FormRequest;
 
+#[ErrorBag('password')]
 class UpdatePasswordRequest extends FormRequest
 {
     /**
