@@ -62,6 +62,11 @@ class Product extends Model
         return $this->hasOne(ProductImage::class)->where('is_primary', true)->orderBy('sort_order');
     }
 
+    public function firstImage(): HasOne
+    {
+        return $this->hasOne(ProductImage::class)->orderBy('sort_order')->orderBy('id');
+    }
+
     public function scopeActive(Builder $query): void
     {
         $query->where('is_active', true);

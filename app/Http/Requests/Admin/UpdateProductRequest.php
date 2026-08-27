@@ -39,7 +39,7 @@ class UpdateProductRequest extends FormRequest
             'is_featured' => ['required', 'boolean'],
             'sort_order' => ['required', 'integer', 'min:0', 'max:999999'],
             'images' => ['nullable', 'array', 'max:10'],
-            'images.*' => [File::image()->max('5mb')],
+            'images.*' => [File::image()->types(['jpg', 'jpeg', 'png', 'webp'])->extensions(['jpg', 'jpeg', 'png', 'webp'])->max('5mb')],
             'image_alts' => ['nullable', 'array'],
             'image_alts.*' => ['nullable', 'string', 'max:255'],
             'image_order' => ['nullable', 'array'],

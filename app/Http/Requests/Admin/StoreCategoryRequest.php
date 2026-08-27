@@ -28,7 +28,7 @@ class StoreCategoryRequest extends FormRequest
             'name' => ['required', 'string', 'max:120'],
             'slug' => ['required', 'string', 'max:140', 'alpha_dash:ascii', 'unique:categories,slug'],
             'description' => ['nullable', 'string', 'max:2000'],
-            'image' => ['nullable', File::image()->max('5mb')],
+            'image' => ['nullable', File::image()->types(['jpg', 'jpeg', 'png', 'webp'])->extensions(['jpg', 'jpeg', 'png', 'webp'])->max('5mb')],
             'is_active' => ['required', 'boolean'],
             'sort_order' => ['required', 'integer', 'min:0', 'max:999999'],
         ];

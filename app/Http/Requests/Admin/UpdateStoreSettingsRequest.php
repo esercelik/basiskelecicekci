@@ -23,8 +23,8 @@ class UpdateStoreSettingsRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:120'],
-            'phone' => ['required', 'string', 'max:50'],
-            'whatsapp_number' => ['required', 'string', 'max:50'],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'whatsapp_number' => ['nullable', 'string', 'max:50'],
             'address' => ['required', 'string', 'max:2000'],
             'instagram_url' => ['nullable', 'url:http,https', 'max:255'],
             'map_url' => ['nullable', 'url:http,https', 'max:255'],

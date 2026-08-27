@@ -27,7 +27,7 @@ class StoreSettings
                 ];
 
                 try {
-                    $settings = Schema::hasTable('store_settings') ? StoreSetting::query()->first() : null;
+                    $settings = Schema::hasTable('store_settings') ? StoreSetting::query()->find(1) : null;
                 } catch (Throwable) {
                     $settings = null;
                 }
@@ -40,13 +40,15 @@ class StoreSettings
 
         return (object) [
             ...$data,
-            'phoneUrl' => 'tel:'.preg_replace('/[^0-9+]/', '', $data['phone']),
+            'phoneUrl' => $this->normalizePhoneNumber($data['phone']),
             'whatsappNumber' => $this->normalizeWhatsappNumber($data['whatsapp_number']),
+            'instagram_url' => $this->safeUrl($data['instagram_url']),
+            'map_url' => $this->safeUrl($data['map_url']),
         ];
     }
 
     /**
-     * @param  array{name: string, phone: string, whatsapp_number: string, address: string, instagram_url: string|null, map_url: string|null}  $attributes
+     * @param  array{name: string, phone: string|null, whatsapp_number: string|null, address: string, instagram_url: string|null, map_url: string|null}  $attributes
      */
     public function update(array $attributes): StoreSetting
     {
@@ -57,9 +59,30 @@ class StoreSettings
         return $settings;
     }
 
-    private function normalizeWhatsappNumber(string $number): ?string
+    private function normalizePhoneNumber(?string $number): ?string
     {
-        $number = preg_replace('/\D+/', '', $number);
+        $number = preg_replace('/\D+/', '', (string) $number);
+
+        if (blank($number)) {
+            return null;
+        }
+
+        $number = Str::startsWith($number, '00') ? Str::substr($number, 2) : $number;
+
+        if (Str::startsWith($number, '0')) {
+            $number = '90'.Str::substr($number, 1);
+        }
+
+        if (Str::startsWith($number, '90')) {
+            $number = '+'.$number;
+        }
+
+        return preg_match('/^\+[1-9][0-9]{7,14}$/', $number) === 1 ? 'tel:'.$number : null;
+    }
+
+    private function normalizeWhatsappNumber(?string $number): ?string
+    {
+        $number = preg_replace('/\D+/', '', (string) $number);
 
         if (blank($number)) {
             return null;
@@ -72,5 +95,16 @@ class StoreSettings
         }
 
         return preg_match('/^[1-9][0-9]{7,14}$/', $number) === 1 ? $number : null;
+    }
+
+    private function safeUrl(?string $url): ?string
+    {
+        $url = trim((string) $url);
+
+        if (blank($url) || ! filter_var($url, FILTER_VALIDATE_URL)) {
+            return null;
+        }
+
+        return in_array(parse_url($url, PHP_URL_SCHEME), ['http', 'https'], true) ? $url : null;
     }
 }

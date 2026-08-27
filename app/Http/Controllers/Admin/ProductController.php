@@ -22,8 +22,9 @@ class ProductController extends Controller
     public function index(Request $request): View
     {
         $filters = $request->only(['search', 'category', 'status', 'stock', 'featured']);
+        $filters['category'] = ctype_digit((string) ($filters['category'] ?? '')) ? (string) $filters['category'] : '';
         $products = Product::query()
-            ->with(['category:id,name', 'primaryImage:id,product_id,image_path,alt_text'])
+            ->with(['category:id,name', 'primaryImage:id,product_id,image_path,alt_text', 'firstImage:id,product_id,image_path,alt_text'])
             ->when(filled($filters['search'] ?? null), function (Builder $query) use ($filters): void {
                 $query->where(function (Builder $searchQuery) use ($filters): void {
                     $searchQuery->where('name', 'like', '%'.$filters['search'].'%')

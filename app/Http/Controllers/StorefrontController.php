@@ -18,7 +18,7 @@ class StorefrontController extends Controller
             ->active()
             ->featured()
             ->whereHas('category', fn (Builder $categoryQuery): Builder => $categoryQuery->active())
-            ->with(['category:id,name,slug', 'primaryImage:id,product_id,image_path,alt_text'])
+            ->with(['category:id,name,slug', 'primaryImage:id,product_id,image_path,alt_text', 'firstImage:id,product_id,image_path,alt_text'])
             ->ordered()
             ->limit(6)
             ->get();
@@ -33,7 +33,7 @@ class StorefrontController extends Controller
         $products = Product::query()
             ->active()
             ->whereHas('category', fn (Builder $categoryQuery): Builder => $categoryQuery->active())
-            ->with(['category:id,name,slug', 'primaryImage:id,product_id,image_path,alt_text'])
+            ->with(['category:id,name,slug', 'primaryImage:id,product_id,image_path,alt_text', 'firstImage:id,product_id,image_path,alt_text'])
             ->when($selectedCategorySlug !== '', fn (Builder $productQuery): Builder => $productQuery->whereHas('category', fn (Builder $categoryQuery): Builder => $categoryQuery->where('slug', $selectedCategorySlug)))
             ->ordered()
             ->get();
@@ -43,14 +43,14 @@ class StorefrontController extends Controller
 
     public function category(Category $category): View
     {
-        $products = $category->products()->active()->with(['category:id,name,slug', 'primaryImage:id,product_id,image_path,alt_text'])->ordered()->get();
+        $products = $category->products()->active()->with(['category:id,name,slug', 'primaryImage:id,product_id,image_path,alt_text', 'firstImage:id,product_id,image_path,alt_text'])->ordered()->get();
 
         return view('categories.show', compact('category', 'products'));
     }
 
     public function show(Product $product): View
     {
-        $product->load(['category:id,name,slug', 'images:id,product_id,image_path,alt_text,is_primary,sort_order']);
+        $product->load(['category:id,name,slug', 'images:id,product_id,image_path,alt_text,is_primary,sort_order', 'primaryImage:id,product_id,image_path,alt_text', 'firstImage:id,product_id,image_path,alt_text']);
 
         return view('products.show', compact('product'));
     }
